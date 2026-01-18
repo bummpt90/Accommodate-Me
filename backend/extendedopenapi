@@ -1,3 +1,7 @@
+Codes:   Authorization: Bearer <JWT>
+
+
+
 openapi: 3.0.3
 info:
   title: Accommodate-Me API

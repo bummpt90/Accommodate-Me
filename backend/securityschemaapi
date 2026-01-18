@@ -1,0 +1,63 @@
+openapi: 3.0.3
+info:
+  title: Accommodate-Me API
+  version: 1.0.0
+  description: >
+    RESTful API with authentication, RBAC, RLS, and audit logging.
+
+servers:
+  - url: https://api.accommodate-me.com
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT   # JSON Web Token
+
+security:
+  - bearerAuth: []   # Apply globally to all endpoints
+
+paths:
+  /api/auth/login:
+    post:
+      summary: Authenticate user
+      description: Validates credentials and returns a JWT token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: JWT token for subsequent requests
+        '401':
+          description: Invalid credentials
+
+  /api/users/{id}:
+    get:
+      summary: Get user profile
+      security:
+        - bearerAuth: []   # Require JWT
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: User profile retrieved
+        '403':
+          description: Unauthorized

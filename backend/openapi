@@ -1,0 +1,247 @@
+openapi: 3.0.3
+info:
+  title: Accommodate-Me API
+  version: 1.0.0
+  description: >
+    RESTful API for authentication, user management, properties, bookings,
+    payments, and messaging. Backed by SQL Server stored procedures with
+    RBAC, RLS, and audit logging.
+
+servers:
+  - url: https://api.accommodate-me.com
+    description: Production server
+  - url: https://staging.api.accommodate-me.com
+    description: Staging server
+
+paths:
+  /api/auth/login:
+    post:
+      summary: Authenticate user
+      description: Validates credentials and initializes session.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Authentication successful
+        '401':
+          description: Invalid credentials
+
+  /api/auth/update-password:
+    put:
+      summary: Update user password
+      description: Securely updates password for authenticated user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                newPassword:
+                  type: string
+      responses:
+        '200':
+          description: Password updated successfully
+        '403':
+          description: Unauthorized
+
+  /api/users/register:
+    post:
+      summary: Register new user
+      description: Creates a new customer, agent, or admin account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fullName: { type: string }
+                email: { type: string }
+                phone: { type: string }
+                password: { type: string }
+                role: { type: string, enum: [Customer, Agent, Admin] }
+      responses:
+        '201':
+          description: User registered successfully
+
+  /api/users/{id}:
+    get:
+      summary: Get user profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: User profile retrieved
+
+  /api/users/{id}/deactivate:
+    put:
+      summary: Deactivate user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: User deactivated
+
+  /api/properties:
+    post:
+      summary: Approve property
+      description: Admin approves property listing.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                propertyId: { type: integer }
+      responses:
+        '200':
+          description: Property approved
+
+  /api/properties/{id}:
+    get:
+      summary: Get property details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Property details retrieved
+
+  /api/properties/{id}/deactivate:
+    put:
+      summary: Deactivate property
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Property deactivated
+
+  /api/bookings:
+    post:
+      summary: Create booking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customerId: { type: integer }
+                propertyId: { type: integer }
+      responses:
+        '201':
+          description: Booking created
+
+  /api/bookings/{id}:
+    get:
+      summary: Get booking details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Booking details retrieved
+
+    put:
+      summary: Update booking
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: string }
+      responses:
+        '200':
+          description: Booking updated
+
+  /api/payments:
+    post:
+      summary: Process payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bookingId: { type: integer }
+                amount: { type: number }
+                paymentMethod: { type: string }
+                receiptCode: { type: string }
+      responses:
+        '201':
+          description: Payment processed
+
+  /api/payments/{id}:
+    get:
+      summary: Get payment details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Payment details retrieved
+
+  /api/messages:
+    post:
+      summary: Send message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                senderId: { type: integer }
+                receiverId: { type: integer }
+                content: { type: string }
+      responses:
+        '201':
+          description: Message sent
+
+  /api/messages/{id}:
+    get:
+      summary: Get message
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Message retrieved
